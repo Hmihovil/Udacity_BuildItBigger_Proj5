@@ -1,19 +1,27 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.ramyhelow.androidlibrary.JokeActivity;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressBar = findViewById(R.id.progressBar);
     }
 
 
@@ -40,7 +48,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void tellJoke(View view) {
-        new GetJokeFromServerAsyncTask(getApplicationContext()).execute();
+        new GetJokeFromServerAsyncTask(new IGetJokeFromServerAsyncTask() {
+            @Override
+            public void onRetrieveJokeStart() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onRetrieveJokeFinish(@Nullable String result) {
+                progressBar.setVisibility(View.INVISIBLE);
+                Intent jokeIntent = new Intent(getApplicationContext(), JokeActivity.class);
+                jokeIntent.putExtra(JokeActivity.EXTRA_JOKE, result);
+                startActivity(jokeIntent);
+            }
+        }).execute();
+        //new GetJokeFromServerAsyncTask(getApplicationContext()).execute();
     }
 
 
